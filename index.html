@@ -195,8 +195,8 @@ input, select, textarea {
 <!-- HELP -->
 <div class="help section" id="help">
 <h2>Help Center</h2>
-<p>📍 Location: Rasapudipalem</p>
-<p>📞 Contact: 9876543210</p>
+<p>📍 Location: Nadergul</p>
+<p>📞 Contact: 9347508955,9347398814</p>
 <p>🕒 Open: 4 PM - 10 PM</p>
 <p>🚚 Delivery Time: 15 Minutes</p>
 <p>🎁 New User Coupon: NEW10 (10% OFF)</p>
@@ -205,67 +205,146 @@ input, select, textarea {
 <div class="footer">
 © 2026 Tirumala Mirchi Point | All Rights Reserved
 </div>
-
 <script>
 let cart = [];
 let total = 0;
 let discount = 0;
+let isLoggedIn = false;
 
+// LOGIN
 function login(){
     let name = document.getElementById("username").value;
-    if(name==""){ alert("Enter Name"); return;}
+    let mobile = document.getElementById("mobile").value;
+    let address = document.getElementById("address").value;
+
+    if(name=="" || mobile=="" || address==""){
+        alert("Please fill all login details");
+        return;
+    }
+
+    isLoggedIn = true;
+
     document.getElementById("welcome").innerText="Welcome "+name+"!";
 }
 
+
+// ADD TO CART WITH QUANTITY
 function addToCart(item,price){
-    cart.push({item,price});
-    total+=price;
+
+    let existingItem = cart.find(c => c.item === item);
+
+    if(existingItem){
+        existingItem.quantity += 1;
+    }else{
+        cart.push({item,price,quantity:1});
+    }
+
     updateCart();
 }
 
+
+// UPDATE CART
 function updateCart(){
     let list=document.getElementById("cartItems");
     list.innerHTML="";
-    cart.forEach(c=>{
+    total = 0;
+
+    cart.forEach((c,index)=>{
         let li=document.createElement("li");
-        li.innerText=c.item+" - ₹"+c.price;
+        let itemTotal = c.price * c.quantity;
+        total += itemTotal;
+
+        li.innerHTML = `
+            ${c.item} - ₹${c.price} × ${c.quantity} = ₹${itemTotal}
+            <button onclick="increaseQty(${index})">+</button>
+            <button onclick="decreaseQty(${index})">-</button>
+        `;
+
         list.appendChild(li);
     });
-    document.getElementById("total").innerText=total-discount;
+
+    document.getElementById("total").innerText = (total - discount).toFixed(2);
 }
 
+
+// INCREASE QTY
+function increaseQty(index){
+    cart[index].quantity += 1;
+    updateCart();
+}
+
+
+// DECREASE QTY
+function decreaseQty(index){
+    if(cart[index].quantity > 1){
+        cart[index].quantity -= 1;
+    }else{
+        cart.splice(index,1);
+    }
+    updateCart();
+}
+
+
+// APPLY COUPON
 function applyCoupon(){
     let code=document.getElementById("coupon").value;
+
     if(code=="NEW10"){
         discount= total*0.1;
         alert("Coupon Applied! 10% OFF");
     } else {
         alert("Invalid Coupon");
+        discount = 0;
     }
+
     updateCart();
 }
 
+
+// PLACE ORDER + WHATSAPP REDIRECT
 function placeOrder(){
-    if(cart.length==0){ alert("Cart Empty"); return;}
+
+    if(!isLoggedIn){
+        alert("Please login first!");
+        return;
+    }
+
+    if(cart.length==0){
+        alert("Cart Empty");
+        return;
+    }
+
+    let name = document.getElementById("username").value;
+    let mobile = document.getElementById("mobile").value;
+    let address = document.getElementById("address").value;
     let type=document.getElementById("orderType").value;
-    let orderList=document.getElementById("orders");
-    let li=document.createElement("li");
-    li.innerText="Order ₹"+(total-discount)+" ("+type+")";
-    orderList.appendChild(li);
-    alert("Order Placed Successfully!");
+
+    let finalTotal = (total - discount).toFixed(2);
+
+    let message = "🛵 New Order - Tirumala Mirchi Point%0A%0A";
+    message += "👤 Name: "+name+"%0A";
+    message += "📞 Mobile: "+mobile+"%0A";
+    message += "📍 Address: "+address+"%0A";
+    message += "🍽 Order Type: "+type+"%0A%0A";
+    message += "🧾 Order Details:%0A";
+
+    cart.forEach(c=>{
+        let itemTotal = c.price * c.quantity;
+        message += c.item + " ("+c.quantity+") - ₹"+itemTotal+"%0A";
+    });
+
+    message += "%0A💰 Total: ₹"+finalTotal;
+
+    // 🔥 REPLACE WITH HOTEL OWNER NUMBER
+    let whatsappURL = "https://wa.me/919347508955?text=" + message;
+
+    window.open(whatsappURL,"_blank");
+
+    // Reset cart
     cart=[];
     total=0;
     discount=0;
     updateCart();
-}
-
-function addReview(){
-    let text=document.getElementById("reviewText").value;
-    if(text==""){ alert("Write review"); return;}
-    let li=document.createElement("li");
-    li.innerText=text;
-    document.getElementById("reviewList").appendChild(li);
-    document.getElementById("reviewText").value="";
 }
 </script>
 
