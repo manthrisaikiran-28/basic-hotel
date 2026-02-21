@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tirumala Mirchi Point</title>
+
+<style>
+body {
+    margin:0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to right,#fff5e6,#ffe0cc);
+}
+
+header {
+    background:#b30000;
+    color:white;
+    text-align:center;
+    padding:20px;
+}
+
+.logo {
+    font-size:28px;
+    font-weight:bold;
+}
+
+nav {
+    background:#ff6600;
+    padding:10px;
+    text-align:center;
+}
+
+nav a {
+    color:white;
+    text-decoration:none;
+    margin:0 10px;
+    font-weight:bold;
+}
+
+.section {
+    padding:20px;
+    text-align:center;
+}
+
+.menu {
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:15px;
+}
+
+.card {
+    background:white;
+    width:220px;
+    padding:15px;
+    border-radius:10px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.2);
+}
+
+button {
+    background:#b30000;
+    color:white;
+    border:none;
+    padding:8px;
+    border-radius:5px;
+    cursor:pointer;
+}
+
+button:hover { background:#800000; }
+
+input, select, textarea {
+    padding:8px;
+    margin:5px;
+    width:220px;
+}
+
+.cart, .login-box, .reviews, .help {
+    background:white;
+    margin:20px;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.2);
+}
+
+.footer {
+    background:#b30000;
+    color:white;
+    text-align:center;
+    padding:15px;
+}
+
+@media(max-width:600px){
+    .menu{flex-direction:column; align-items:center;}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<div class="logo">🌶 Tirumala Mirchi Point 🍵</div>
+<p>Hot & Fresh Snacks | Delivery in 15 Minutes 🚚</p>
+</header>
+
+<nav>
+<a href="#login">Login</a>
+<a href="#menu">Menu</a>
+<a href="#cart">Cart</a>
+<a href="#reviews">Reviews</a>
+<a href="#help">Help</a>
+</nav>
+
+<!-- LOGIN -->
+<div class="login-box section" id="login">
+<h2>User Login</h2>
+<input type="text" id="username" placeholder="Enter Name"><br>
+<input type="text" id="mobile" placeholder="Mobile Number"><br>
+<input type="text" id="address" placeholder="Address"><br>
+<button onclick="login()">Login</button>
+<p id="welcome"></p>
+</div>
+
+<!-- MENU -->
+<div class="section" id="menu">
+<h2>Our Menu</h2>
+<div class="menu">
+
+<div class="card">
+<h3>Mirchi (4 pcs Plate)</h3>
+<p>₹35</p>
+<button onclick="addToCart('Mirchi Plate',35)">Add</button>
+</div>
+
+<div class="card">
+<h3>Samosa</h3>
+<p>₹15</p>
+<button onclick="addToCart('Samosa',15)">Add</button>
+</div>
+
+<div class="card">
+<h3>Egg Bajji</h3>
+<p>₹15</p>
+<button onclick="addToCart('Egg Bajji',15)">Add</button>
+</div>
+
+<div class="card">
+<h3>Punugulu Plate</h3>
+<p>₹35</p>
+<button onclick="addToCart('Punugulu Plate',35)">Add</button>
+</div>
+
+<div class="card">
+<h3>Tea</h3>
+<p>₹10</p>
+<button onclick="addToCart('Tea',10)">Add</button>
+</div>
+
+<div class="card">
+<h3>Coffee</h3>
+<p>₹15</p>
+<button onclick="addToCart('Coffee',15)">Add</button>
+</div>
+
+</div>
+</div>
+
+<!-- CART -->
+<div class="cart section" id="cart">
+<h2>🛒 Cart</h2>
+<ul id="cartItems"></ul>
+<h3>Total: ₹<span id="total">0</span></h3>
+
+<select id="orderType">
+<option value="dinein">Dine In</option>
+<option value="delivery">Home Delivery (15 mins)</option>
+</select><br>
+
+<input type="text" id="coupon" placeholder="Enter Coupon Code">
+<button onclick="applyCoupon()">Apply</button>
+
+<button onclick="placeOrder()">Place Order</button>
+
+<h3>Your Orders</h3>
+<ul id="orders"></ul>
+</div>
+
+<!-- REVIEWS -->
+<div class="reviews section" id="reviews">
+<h2>Customer Reviews</h2>
+<textarea id="reviewText" placeholder="Write your review"></textarea><br>
+<button onclick="addReview()">Submit Review</button>
+<ul id="reviewList"></ul>
+</div>
+
+<!-- HELP -->
+<div class="help section" id="help">
+<h2>Help Center</h2>
+<p>📍 Location: Rasapudipalem</p>
+<p>📞 Contact: 9876543210</p>
+<p>🕒 Open: 4 PM - 10 PM</p>
+<p>🚚 Delivery Time: 15 Minutes</p>
+<p>🎁 New User Coupon: NEW10 (10% OFF)</p>
+</div>
+
+<div class="footer">
+© 2026 Tirumala Mirchi Point | All Rights Reserved
+</div>
+
+<script>
+let cart = [];
+let total = 0;
+let discount = 0;
+
+function login(){
+    let name = document.getElementById("username").value;
+    if(name==""){ alert("Enter Name"); return;}
+    document.getElementById("welcome").innerText="Welcome "+name+"!";
+}
+
+function addToCart(item,price){
+    cart.push({item,price});
+    total+=price;
+    updateCart();
+}
+
+function updateCart(){
+    let list=document.getElementById("cartItems");
+    list.innerHTML="";
+    cart.forEach(c=>{
+        let li=document.createElement("li");
+        li.innerText=c.item+" - ₹"+c.price;
+        list.appendChild(li);
+    });
+    document.getElementById("total").innerText=total-discount;
+}
+
+function applyCoupon(){
+    let code=document.getElementById("coupon").value;
+    if(code=="NEW10"){
+        discount= total*0.1;
+        alert("Coupon Applied! 10% OFF");
+    } else {
+        alert("Invalid Coupon");
+    }
+    updateCart();
+}
+
+function placeOrder(){
+    if(cart.length==0){ alert("Cart Empty"); return;}
+    let type=document.getElementById("orderType").value;
+    let orderList=document.getElementById("orders");
+    let li=document.createElement("li");
+    li.innerText="Order ₹"+(total-discount)+" ("+type+")";
+    orderList.appendChild(li);
+    alert("Order Placed Successfully!");
+    cart=[];
+    total=0;
+    discount=0;
+    updateCart();
+}
+
+function addReview(){
+    let text=document.getElementById("reviewText").value;
+    if(text==""){ alert("Write review"); return;}
+    let li=document.createElement("li");
+    li.innerText=text;
+    document.getElementById("reviewList").appendChild(li);
+    document.getElementById("reviewText").value="";
+}
+</script>
+
+</body>
+</html>
